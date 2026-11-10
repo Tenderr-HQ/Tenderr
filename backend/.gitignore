@@ -1,0 +1,88 @@
+# unheard backend (.gitignore) — Django + Python + Docker
+
+# ---- Python bytecode & caches ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+ENV/
+.venv-*/
+pip-wheel-metadata/
+
+# ---- Packaging / build artifacts ----
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ---- Testing / coverage ----
+.pytest_cache/
+.cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# ---- Type checkers ----
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+
+# ---- Django ----
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+!media/.gitkeep
+!staticfiles/.gitkeep
+
+# ---- Env files ----
+.env
+.env.*
+!.env.example
+
+# ---- Celery ----
+celerybeat-schedule
+celerybeat-schedule.*
+celerybeat.pid
+
+# ---- Docker ----
+.dockerignore
+Dockerfile.local
+docker-compose.override.yml
+
+# ---- IDE ----
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+
+# ---- Secrets (belt-and-suspenders; also gitignored above) ----
+*.pem
+*.key
+*.p8
+*.p12
+*.mobileprovision
+secrets/
