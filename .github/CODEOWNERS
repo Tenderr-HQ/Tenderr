@@ -1,11 +1,11 @@
 # Backend Team owns the backend directory
-/backend/ @YourOrgName/backend-team
+/backend/ @unheard-project/backend-team
 
 # Frontend Team owns the frontend directory
-/frontend/ @YourOrgName/frontend-team
+/frontend/ @unheard-project/frontend-team
 
 # Docs team owns documentation
-/docs/ @YourOrgName/docs-team
+/docs/ @unheard-project/docs-team
 
 # Platform/DevOps owns the .github configuration
-/.github/ @YourOrgName/platform-team
+/.github/ @unheard-project/platform-team
