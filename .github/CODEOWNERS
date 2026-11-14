@@ -1,11 +1,11 @@
 # Backend Team owns the backend directory
-/backend/ @unheard-project/backend-team
+/backend/ @Tenderr-HQ/backend-team
 
 # Frontend Team owns the frontend directory
-/frontend/ @unheard-project/frontend-team
+/frontend/ @Tenderr-HQ/frontend-team
 
 # Docs team owns documentation
-/docs/ @unheard-project/docs-team
+/docs/ @Tenderr-HQ/docs-team
 
 # Platform/DevOps owns the .github configuration
-/.github/ @unheard-project/platform-team
+/.github/ @Tenderr-HQ/platform-team
