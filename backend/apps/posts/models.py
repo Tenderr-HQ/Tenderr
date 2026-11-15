@@ -305,8 +305,17 @@ class AnonymousLetter(models.Model):
         db_table = 'posts_anonymous_letter'
         ordering = ['-created_at']
         indexes = [
-            models.Index(fields=['post', '-created_at']),
-            models.Index(fields=['post__author', 'is_read']),
+            # Query: "all letters for a given post, newest first"
+            # (used by the letter detail / list-per-post view)
+            models.Index(fields=['post', '-created_at'], name='posts_letter_post_idx'),
+            # Query: "unread letters" for a specific user's posts.
+            # The join `post__author=me` is served by the `post` FK index
+            # plus the `is_read` index below — Postgres will plan the
+            # join + filter on both efficiently without a compound index.
+            models.Index(fields=['is_read'], name='posts_letter_read_idx'),
+
+            # Query: "letters I've sent", ordered by recency
+            models.Index(fields=['sender', '-created_at'], name='posts_letter_sender_idx'),
         ]
 
     def __str__(self):

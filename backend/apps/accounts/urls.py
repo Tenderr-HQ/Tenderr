@@ -11,7 +11,6 @@ from .views import (
     CompanionRespondView,
     DeactivateAccountView,
     MeView,
-    MyCompanionRequestsView,
     MyCompanionsView,
     MyPendingCompanionRequestsView,
     MyStandWithListView,
@@ -45,7 +44,6 @@ urlpatterns = [
     path('<str:username>/stand-with/', StandWithToggleView.as_view(), name='stand-with'),
 
     # Companion
-    path('<str:username>/companion/', CompanionRequestView.as_view(), name='companion-request'),
     path('companions/<int:pk>/<str:action>/', CompanionRespondView.as_view(), name='companion-respond'),
     path('companions/<int:pk>/cancel/', CompanionCancelView.as_view(), name='companion-cancel'),
 
