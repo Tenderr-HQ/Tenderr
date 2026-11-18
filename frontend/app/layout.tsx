@@ -3,8 +3,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Tenderr",
-  description: "A space where your voice matters.",
+  title: {
+    default: "Tenderr — A space where your voice matters",
+    template: "%s | Tenderr",
+  },
+  description:
+    "A space where your voice matters. Share your thoughts, connect with others and feel heard.",
 };
 
 export default function RootLayout({
@@ -14,9 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

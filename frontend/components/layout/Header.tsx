@@ -1,0 +1,85 @@
+
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import Logo from "../ui/Logo";
+
+const pageTitles: Record<string, string> = {
+  "/home": "Home",
+  "/explore": "Explore",
+  "/categories": "Categories",
+  "/notifications": "Notifications",
+  "/profile": "My Profile",
+  "/my-posts": "My Posts",
+  "/saved": "Saved Posts",
+  "/create-post": "Create a post",
+  "/settings": "Settings",
+};
+
+export default function Header() {
+  const pathname = usePathname();
+
+  const title =
+    pageTitles[pathname] ||
+    (pathname.startsWith("/category/")
+      ? "Category"
+      : pathname.startsWith("/post/")
+        ? "Discussion"
+        : pathname.startsWith("/user/")
+          ? "Profile"
+          : "Your space");
+
+  return (
+    <header className="sticky top-0 z-30 flex h-[68px] items-center justify-between border-b border-white/[0.07] bg-[#0d0914]/90 px-4 backdrop-blur-xl sm:px-7">
+      <div className="lg:hidden">
+        <Logo size="small" />
+      </div>
+
+      <div className="hidden lg:block">
+        <h1 className="text-base font-semibold text-white">
+          {title}
+        </h1>
+        <p className="mt-0.5 text-xs text-gray-500">
+          A space where your voice matters.
+        </p>
+      </div>
+
+      <div className="ml-auto flex items-center gap-2">
+        {/* Settings */}
+        <Link
+          href="/settings"
+          aria-label="Settings"
+          title="Settings"
+          className={`flex h-10 w-10 items-center justify-center rounded-xl text-lg transition ${
+            pathname.startsWith("/settings")
+              ? "bg-purple-500/10 text-purple-400"
+              : "text-gray-400 hover:bg-white/[0.05] hover:text-white"
+          }`}
+        >
+          ⚙
+        </Link>
+
+        {/* Notifications */}
+        <Link
+          href="/notifications"
+          aria-label="Notifications"
+          title="Notifications"
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-lg text-gray-400 transition hover:bg-white/[0.05] hover:text-white"
+        >
+          ♧
+        </Link>
+
+        {/* Profile */}
+        <Link
+          href="/profile"
+          aria-label="Your profile"
+          title="Your profile"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white ring-2 ring-purple-500/20 transition hover:ring-purple-400/50"
+        >
+          U
+        </Link>
+      </div>
+    </header>
+  );
+}

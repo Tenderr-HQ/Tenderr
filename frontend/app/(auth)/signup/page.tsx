@@ -11,10 +11,6 @@ export default function SignupPage() {
           <h1 className="text-4xl font-bold tracking-wide text-purple-400">
             Tenderr
           </h1>
-
-          <p className="text-gray-400 mt-3 text-sm">
-            A space where your voice matters.
-          </p>
         </div>
 
         {/* Signup Card */}
