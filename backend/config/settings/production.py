@@ -67,7 +67,7 @@ EMAIL_HOST_PASSWORD = _get_env('EMAIL_HOST_PASSWORD', required=True)
 # Static files: served from the same box via staticfiles storage.
 # If you later add whitenoise or a CDN, swap the backend here.
 STORAGES['staticfiles'] = {  # noqa: F405
-    'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
 }
 
 # Media files (avatars, community posts, videos): S3 by default.
@@ -96,6 +96,11 @@ elif STORAGE_BACKEND.startswith('cloudinary'):
         api_secret=_get_env('CLOUDINARY_API_SECRET', required=True),
     )
 
+
+WHITENOISE_MAX_AGE = 31536000          # 1 year for hashed assets
+WHITENOISE_USE_FINDERS = False         # never use finders in prod (slower)
+WHITENOISE_AUTOREFRESH = False         # don't watch for file changes in prod
+WHITENOISE_MANIFEST_STRICT = True      # fail loudly if a referenced file is missing
 
 # PASSWORD HASHERS — Argon2 (stronger than default PBKDF2)
 # Requires `argon2-cffi` in requirements.txt.
