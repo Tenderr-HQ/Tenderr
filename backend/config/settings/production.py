@@ -81,6 +81,7 @@ EMAIL_PORT = _get_int('EMAIL_PORT', default=587)
 EMAIL_USE_TLS = _get_bool('EMAIL_USE_TLS', default=True)
 EMAIL_HOST_USER = _get_env('EMAIL_HOST_USER', required=True)
 EMAIL_HOST_PASSWORD = _get_env('EMAIL_HOST_PASSWORD', required=True)
+EMAIL_TIMEOUT = _get_int('EMAIL_TIMEOUT', default=10)
 
 
 # STATIC & MEDIA — S3 (or Cloudinary)

@@ -333,6 +333,8 @@ EMAIL_USE_TLS = _get_bool('EMAIL_USE_TLS', default=True)
 EMAIL_HOST_USER = _get_env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = _get_env('EMAIL_HOST_PASSWORD', default='')
 
+EMAIL_TIMEOUT = 10  # seconds; smtplib will raise TimeoutError instead of hanging
+
 DEFAULT_FROM_EMAIL = _get_env('DEFAULT_FROM_EMAIL', default='no-reply@unheard.app')
 SERVER_EMAIL = _get_env('SERVER_EMAIL', default=DEFAULT_FROM_EMAIL)
 ADMINS = [_get_env('ADMINS', default='noc@unheard.app')]
