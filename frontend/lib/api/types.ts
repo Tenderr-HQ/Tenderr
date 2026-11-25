@@ -80,6 +80,8 @@ export interface PublicUserDto {
 // Authentication (authentications/urls.py)
 // ────────────────────────────────────────────────────────────
 
+
+
 export interface RegisterPayload {
   full_name: string;
   username: string;
@@ -87,6 +89,8 @@ export interface RegisterPayload {
   password: string;
   password_confirm: string;
 }
+
+
 
 export interface LoginPayload {
   email: string;

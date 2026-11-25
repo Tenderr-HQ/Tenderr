@@ -53,9 +53,9 @@ export const tokenStore = {
 
 // ---------- Axios instance ----------
 export const apiClient = axios.create({
-  baseURL: `${API_BASE}/api/`,
+  baseURL: `${API_BASE.replace(/\/$/, "")}/api/`,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 30_000,
+  timeout: 90_000,
 });
 
 // ---------- Request interceptor: attach access token ----------
