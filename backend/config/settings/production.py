@@ -52,6 +52,27 @@ USE_X_FORWARDED_PORT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
+
+# In production, Redis URLs MUST be set — no localhost fallback.
+CELERY_BROKER_URL = _get_env('REDIS_URL', required=True)
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [_get_env('REDIS_CHANNELS_URL', required=True)],
+        },
+    },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': _get_env('REDIS_CACHE_URL', required=True),
+    },
+}
+
 # EMAIL — real SMTP
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
