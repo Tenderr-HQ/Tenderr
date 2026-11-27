@@ -63,6 +63,68 @@ class PostQuerySet(models.QuerySet):
             return self.filter(intent=intent)
         return self
 
+    
+    def order_by_latest(self):
+        """Newest approved posts first — the default Explore view."""
+        return self.order_by('-created_at')
+
+    def order_by_most_discussed(self):
+        """
+        Sort by approved comment count (descending), then by recency
+        as a tiebreaker. Uses `.annotate()` so no N+1 queries.
+
+        Why count approved comments only:
+          Pending/flagged comments shouldn't inflate "most discussed"
+          rankings — that would let one pending spam thread top the
+          chart.
+        """
+        from django.db.models import Count, Q
+        return (
+            self.annotate(
+                approved_comments=Count(
+                    'comments',
+                    filter=Q(comments__status='approved', comments__is_removed=False),
+                    distinct=True,
+                )
+            )
+            .order_by('-approved_comments', '-created_at')
+        )
+
+    def order_by_recommended(self):
+        """
+        "Recommended" = highest engagement in the last 7 days.
+
+        Why a time window:
+          A post from 6 months ago with 500 reactions shouldn't
+          permanently dominate the recommended tab. This surfaces
+          recent posts that are getting real traction.
+
+        Score = (love + me_too) + (approved_comments * 2).
+        Comments are weighted higher than reactions because they
+        represent more effort from the community.
+        """
+        from django.db.models import Count, F, Q
+        from django.utils import timezone
+        import datetime
+
+        seven_days_ago = timezone.now() - datetime.timedelta(days=7)
+        return (
+            self.filter(created_at__gte=seven_days_ago)
+            .annotate(
+                reaction_count=Count('reactions', distinct=True),
+                approved_comments=Count(
+                    'comments',
+                    filter=Q(comments__status='approved', comments__is_removed=False),
+                    distinct=True,
+                ),
+            )
+            .annotate(
+                recommendation_score=F('reaction_count') + F('approved_comments') * 2,
+            )
+            .order_by('-recommendation_score', '-created_at')
+        )
+
+
 
 class PostManager(models.Manager.from_queryset(PostQuerySet)):
     """

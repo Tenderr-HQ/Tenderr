@@ -17,7 +17,9 @@ from apps.posts.constants import (
     FEED_PAGE_SIZE,
     LETTERS_PAGE_SIZE,
 )
-from apps.posts.models import AnonymousLetter, Comment, Post, Reaction
+from apps.posts.models import AnonymousLetter, Comment, Post, Reaction, SavedPost
+from apps.posts.serializers import SavedPostSerializer
+
 from apps.posts.permissions import (
     CanInteractWithPost,
     CommentsEnabled,
@@ -32,13 +34,12 @@ from apps.posts.serializers import (
     PostSerializer,
 )
 from apps.posts.services.feed import build_feed
+from apps.posts.managers import PostQuerySet
 
 logger = logging.getLogger(__name__)
 
 
-#
 # Feed
-#
 
 class FeedListView(generics.ListAPIView):
     """
@@ -128,9 +129,7 @@ class PostDetailView(generics.RetrieveDestroyAPIView):
         instance.save(update_fields=['is_removed'])
 
 
-#
 # Comments
-#
 
 class CommentListView(generics.ListAPIView):
     """
@@ -224,9 +223,7 @@ class CommentRepliesView(generics.ListAPIView):
         )
 
 
-#
 # Reactions
-#
 
 class ReactionToggleView(APIView):
     """
@@ -258,10 +255,8 @@ class ReactionToggleView(APIView):
 
         return Response({'toggled': toggled, 'type': reaction_type})
 
-
-#
 # Anonymous Letters
-#
+
 
 class LetterSendView(APIView):
     """
@@ -334,3 +329,102 @@ class LetterMarkReadView(APIView):
             letter.is_read = True
             letter.save(update_fields=['is_read'])
         return Response({'is_read': True})
+
+
+
+class ExploreView(generics.ListAPIView):
+    """
+    GET /api/posts/explore/
+
+    Explore page — discovery of heart-touching stories.
+
+    Query params:
+      ?filter=latest              (default) — newest first
+      ?filter=most_discussed               — highest comment count
+      ?filter=recommended                  — engagement score, last 7 days
+
+      ?category=love|life|mental_health|family  (optional, any filter)
+      ?intent=vent|advice|similar|talk          (optional, any filter)
+
+    The three filters are mutually exclusive (last one wins if multiple
+    are passed). All filters respect block relationships and moderation
+    status — you only see approved posts from users you're not blocking.
+    """
+    serializer_class = PostSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        viewer = self.request.user
+        qs = Post.objects.approved().visible_to(viewer)
+
+        # Apply category / intent filters first (shared across all sorts)
+        category = self.request.query_params.get('category')
+        intent = self.request.query_params.get('intent')
+        qs = qs.by_category(category).by_intent(intent)
+
+        # Apply the sort
+        sort = self.request.query_params.get('filter', 'latest')
+        if sort == 'most_discussed':
+            qs = qs.order_by_most_discussed()
+        elif sort == 'recommended':
+            qs = qs.order_by_recommended()
+        else:
+            qs = qs.order_by_latest()
+
+        return qs.select_related('author').prefetch_related('reactions', 'saved_by')
+
+
+
+class SaveToggleView(APIView):
+    """
+    POST /api/posts/<post_id>/save/
+
+    Toggle the saved state for the current user.
+    Response: { saved: boolean }
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, post_id):
+        post = get_object_or_404(Post, pk=post_id, status='approved', is_removed=False)
+        if not post.can_be_viewed_by(request.user):
+            return Response({'detail': 'Unavailable.'}, status=403)
+
+        obj, created = SavedPost.objects.get_or_create(
+            user=request.user, post=post,
+        )
+        if not created:
+            obj.delete()
+            return Response({'saved': False})
+        return Response({'saved': True}, status=201)
+
+
+class SavedPostsListView(generics.ListAPIView):
+    """
+    GET /api/posts/saved/
+
+    All posts saved by the current user, newest save first.
+    Includes posts from users the viewer is NOT blocking — but
+    the user could have saved a post before blocking the author,
+    so we also exclude posts from blocked users.
+    """
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        saved_qs = (
+            SavedPost.objects
+            .filter(user=self.request.user)
+            .select_related('post__author')
+            .prefetch_related('post__reactions', 'post__saved_by')
+            .order_by('-created_at')
+        )
+        post_ids = saved_qs.values_list('post_id', flat=True)
+
+        return (
+            Post.objects
+            .filter(id__in=post_ids, status='approved', is_removed=False)
+            .visible_to(self.request.user)
+            .select_related('author')
+            .prefetch_related('reactions', 'saved_by')
+            .order_by('-saved_by__created_at')
+        )

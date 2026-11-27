@@ -35,4 +35,7 @@ def build_feed(*, viewer, category=None, intent=None, author=None):
 
     qs = qs.by_category(category).by_intent(intent)
 
-    return qs.select_related('author').prefetch_related('reactions')
+    return (
+        qs.select_related('author')
+        .prefetch_related('reactions', 'saved_by')
+    )

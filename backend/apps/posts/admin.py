@@ -11,7 +11,7 @@ read-only fields are chosen to make triage fast:
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import AnonymousLetter, Comment, Post, Reaction
+from .models import AnonymousLetter, Comment, Post, Reaction, SavedPost
 
 
 @admin.register(Post)
@@ -142,3 +142,12 @@ class AnonymousLetterAdmin(admin.ModelAdmin):
 
     def content_preview(self, obj):
         return (obj.content or '')[:200]
+
+@admin.register(SavedPost)
+class SavedPostAdmin(admin.ModelAdmin):
+    list_display = ('user', 'post', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('user__username', 'post__id')
+    autocomplete_fields = ('user', 'post')
+    readonly_fields = ('created_at',)
+    date_hierarchy = 'created_at'

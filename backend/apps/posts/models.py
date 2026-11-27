@@ -320,3 +320,50 @@ class AnonymousLetter(models.Model):
 
     def __str__(self):
         return f'Letter<{self.id}> from {self.sender_id} to post {self.post_id}'
+
+
+
+class SavedPost(models.Model):
+    """
+    A user's private bookmark of a post.
+
+    Why private:
+      - Users may save posts about abuse, self-harm, or grief that
+        they do not want on a public "saved" list. The saved list is
+        visible only to its owner, always.
+      - There is no follower-visible "saved by" count.
+
+    Behavior:
+      - Toggled via POST /api/posts/<id>/save/ (add or remove).
+      - Deleting a post cascades — saves disappear with it.
+      - Private profile deletion cascades — the saves are wiped
+        (via User CASCADE) so the saved row is orphaned and removed.
+    """
+
+    id = models.BigAutoField(primary_key=True)
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='saved_posts',
+    )
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='saved_by',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        db_table = 'posts_saved_post'
+        unique_together = ('user', 'post')
+        ordering = ['-created_at']
+        indexes = [
+            # Query: "list my saved posts, newest first"
+            models.Index(fields=['user', '-created_at'], name='saved_user_cr_idx'),
+            # Query: "is this post saved by me?" (used by PostSerializer)
+            models.Index(fields=['post'], name='saved_post_idx'),
+        ]
+
+    def __str__(self):
+        return f'{self.user_id} saved {self.post_id}'

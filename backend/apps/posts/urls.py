@@ -11,6 +11,7 @@ from .views import (
     CommentCreateView,
     CommentListView,
     CommentRepliesView,
+    ExploreView, 
     FeedListView,
     LetterInboxView,
     LetterMarkReadView,
@@ -19,6 +20,8 @@ from .views import (
     PostCreateView,
     PostDetailView,
     ReactionToggleView,
+    SaveToggleView,
+    SavedPostsListView,
 )
 
 app_name = 'posts'
@@ -27,6 +30,8 @@ urlpatterns = [
     # Feed
     path('', FeedListView.as_view(), name='feed'),
     path('mine/', MyPostsView.as_view(), name='my-posts'),
+    path('explore/', ExploreView.as_view(), name='explore'),  
+    path('saved/', SavedPostsListView.as_view(), name='saved'),
 
     # Post CRUD
     path('create/', PostCreateView.as_view(), name='post-create'),
@@ -39,6 +44,10 @@ urlpatterns = [
 
     # Reactions
     path('<uuid:post_id>/react/', ReactionToggleView.as_view(), name='reaction-toggle'),
+
+    # Save
+    path('<uuid:post_id>/save/', SaveToggleView.as_view(), name='save-toggle'),   # ← NEW
+
 
     # Letters
     path('<uuid:post_id>/letters/', LetterSendView.as_view(), name='letter-send'),
