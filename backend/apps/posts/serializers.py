@@ -22,7 +22,7 @@ from apps.posts.constants import (
     LETTER_CONTENT_MAX_LENGTH,
     POST_CONTENT_MAX_LENGTH,
 )
-from apps.posts.models import AnonymousLetter, Comment, Post, Reaction
+from apps.posts.models import AnonymousLetter, Comment, Post, Reaction, SavedPost
 
 
 # Anonymity helper
@@ -181,17 +181,19 @@ class PostSerializer(serializers.ModelSerializer):
     comments_count = serializers.SerializerMethodField()
     letters_count = serializers.SerializerMethodField()
     is_mine = serializers.SerializerMethodField()
+    is_saved = serializers.SerializerMethodField()  
+
 
     class Meta:
         model = Post
         fields = [
             'id', 'content', 'category', 'intent', 'allow_comments',
             'is_anonymous', 'author_info', 'reactions',
-            'comments_count', 'letters_count', 'is_mine', 'created_at', 'updated_at',
+            'comments_count', 'letters_count', 'is_mine', 'is_saved', 'created_at', 'updated_at',
         ]
         read_only_fields = [
             'id', 'author_info', 'reactions', 'comments_count',
-            'letters_count', 'is_mine', 'created_at', 'updated_at',
+            'letters_count', 'is_mine', 'is_saved', 'created_at', 'updated_at',
         ]
 
     # --- author_info ---
@@ -250,6 +252,21 @@ class PostSerializer(serializers.ModelSerializer):
         viewer = self.context['request'].user if self.context.get('request') else None
         return bool(viewer and viewer.is_authenticated and str(viewer.id) == str(obj.author_id))
 
+
+    def get_is_saved(self, obj):
+        """
+        Whether the current viewer has saved this post.
+        Always False for anonymous requests — there's no one to save it for.
+        """
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        # Uses the prefetch on saved_by (see view's queryset) to avoid
+        # one query per post on the feed.
+        return any(
+            sp.user_id == request.user.id
+            for sp in obj.saved_by.all()
+        )
 
 # Write serializers (create/update payloads)
 
@@ -346,3 +363,18 @@ class AnonymousLetterInboxSerializer(serializers.ModelSerializer):
     def get_post_preview(self, obj):
         snippet = (obj.post.content or '')[:80]
         return {'id': obj.post.id, 'snippet': snippet}
+
+
+class SavedPostSerializer(serializers.ModelSerializer):
+    """
+    Used by the notifications/digest system if it ever surfaces
+    "you saved this" links. Not currently used by the API list
+    response — the list returns PostSerializer (so the UI gets
+    the same shape as the feed).
+    """
+    post = PostSerializer(read_only=True)
+
+    class Meta:
+        model = SavedPost
+        fields = ['id', 'post', 'created_at']
+        read_only_fields = fields
