@@ -12,7 +12,6 @@ import type { MeDto } from "@/lib/api/types";
 const pageTitles: Record<string, string> = {
   "/home": "Home",
   "/explore": "Explore",
-  "/categories": "Categories",
   "/notifications": "Notifications",
   "/profile": "My Profile",
   "/my-posts": "My Posts",

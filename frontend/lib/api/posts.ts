@@ -38,14 +38,18 @@ import type {
  *     queryFn: ({ pageParam }) => getFeed({ category, page: pageParam }),
  *   });
  */
-export async function getFeed(params: {
-  category?: PostCategory;
-  intent?: PostIntent;
-  page?: number;
-} = {}): Promise<Paginated<PostDto>> {
-  const { data } = await apiClient.get<Paginated<PostDto>>('posts/', { params });
+
+export async function getFeed(
+  params: {
+    category?: PostCategory;
+    intent?: PostIntent;
+    page?: number;
+  } = {}
+): Promise<PostDto[] | Paginated<PostDto>> {
+  const { data } = await apiClient.get("posts/", { params });
   return data;
 }
+
 
 /**
  * GET /api/posts/mine/
