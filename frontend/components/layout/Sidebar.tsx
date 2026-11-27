@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -12,6 +13,7 @@ import {
   Bookmark,
   Settings,
   Plus,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import Logo from "../ui/Logo";
@@ -27,6 +29,7 @@ const navigation: NavItem[] = [
   { label: "Explore", href: "/explore", icon: Search },
   { label: "Categories", href: "/categories", icon: LayoutGrid },
   { label: "Notifications", href: "/notifications", icon: Bell },
+  { label: "Communities", href: "/communities", icon: Users },
 ];
 
 const personal: NavItem[] = [
@@ -40,13 +43,14 @@ export default function Sidebar() {
 
   const isActive = (href: string) => {
     if (href === "/home") return pathname === "/home";
+
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   const renderLinks = (items: NavItem[]) =>
     items.map((item) => {
       const active = isActive(item.href);
-      const Icon = item.icon; // must be capitalized to render as a component
+      const Icon = item.icon;
 
       return (
         <Link
@@ -56,7 +60,7 @@ export default function Sidebar() {
           className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
             active
               ? "bg-purple-500/10 text-purple-400"
-              : "text-gray-400 hover:bg-white/4 hover:text-white"
+              : "text-gray-400 hover:bg-white/5 hover:text-white"
           }`}
         >
           <Icon className="h-5 w-5" />
@@ -81,6 +85,7 @@ export default function Sidebar() {
         <p className="mb-3 px-4 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
           Menu
         </p>
+
         {renderLinks(navigation)}
       </nav>
 
@@ -88,6 +93,7 @@ export default function Sidebar() {
         <p className="mb-3 px-4 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
           Personal
         </p>
+
         {renderLinks(personal)}
       </nav>
 
@@ -97,7 +103,7 @@ export default function Sidebar() {
           className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
             isActive("/settings")
               ? "bg-purple-500/10 text-purple-400"
-              : "text-gray-400 hover:bg-white/4 hover:text-white"
+              : "text-gray-400 hover:bg-white/5 hover:text-white"
           }`}
         >
           <Settings className="h-5 w-5" />
@@ -108,9 +114,14 @@ export default function Sidebar() {
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 font-semibold text-white">
             U
           </div>
+
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">Your Account</p>
-            <p className="text-xs text-gray-500">Personal profile</p>
+            <p className="truncate text-sm font-semibold text-white">
+              Your Account
+            </p>
+            <p className="text-xs text-gray-500">
+              Personal profile
+            </p>
           </div>
         </div>
       </div>
