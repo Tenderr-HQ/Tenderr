@@ -1,4 +1,3 @@
-
 import PostCard from "@/components/posts/PostCard";
 
 const posts = [
@@ -31,11 +30,9 @@ export default function HomePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-white">
-          Your Feed
-        </h1>
+        <h1 className="text-2xl font-bold text-white">Your Feed</h1>
         <p className="mt-2 text-sm text-gray-400">
-          Discover conversations and share what's on your mind.
+          Discover conversations and share what&apos;s on your mind.
         </p>
       </div>
 

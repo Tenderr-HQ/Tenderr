@@ -52,6 +52,27 @@ USE_X_FORWARDED_PORT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
+
+# In production, Redis URLs MUST be set — no localhost fallback.
+CELERY_BROKER_URL = _get_env('REDIS_URL', required=True)
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [_get_env('REDIS_CHANNELS_URL', required=True)],
+        },
+    },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': _get_env('REDIS_CACHE_URL', required=True),
+    },
+}
+
 # EMAIL — real SMTP
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -60,6 +81,7 @@ EMAIL_PORT = _get_int('EMAIL_PORT', default=587)
 EMAIL_USE_TLS = _get_bool('EMAIL_USE_TLS', default=True)
 EMAIL_HOST_USER = _get_env('EMAIL_HOST_USER', required=True)
 EMAIL_HOST_PASSWORD = _get_env('EMAIL_HOST_PASSWORD', required=True)
+EMAIL_TIMEOUT = _get_int('EMAIL_TIMEOUT', default=10)
 
 
 # STATIC & MEDIA — S3 (or Cloudinary)
@@ -67,7 +89,7 @@ EMAIL_HOST_PASSWORD = _get_env('EMAIL_HOST_PASSWORD', required=True)
 # Static files: served from the same box via staticfiles storage.
 # If you later add whitenoise or a CDN, swap the backend here.
 STORAGES['staticfiles'] = {  # noqa: F405
-    'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
 }
 
 # Media files (avatars, community posts, videos): S3 by default.
@@ -96,6 +118,11 @@ elif STORAGE_BACKEND.startswith('cloudinary'):
         api_secret=_get_env('CLOUDINARY_API_SECRET', required=True),
     )
 
+
+WHITENOISE_MAX_AGE = 31536000          # 1 year for hashed assets
+WHITENOISE_USE_FINDERS = False         # never use finders in prod (slower)
+WHITENOISE_AUTOREFRESH = False         # don't watch for file changes in prod
+WHITENOISE_MANIFEST_STRICT = True      # fail loudly if a referenced file is missing
 
 # PASSWORD HASHERS — Argon2 (stronger than default PBKDF2)
 # Requires `argon2-cffi` in requirements.txt.

@@ -119,6 +119,7 @@ SITE_ID = 1
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',        # must be first for CORS preflight
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -288,7 +289,7 @@ CACHES = {
 
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_SIGNUP_FIELDS = ['username*', 'email*', 'password1*', 'password2*']
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
 
@@ -331,6 +332,8 @@ EMAIL_PORT = _get_int('EMAIL_PORT', default=587)
 EMAIL_USE_TLS = _get_bool('EMAIL_USE_TLS', default=True)
 EMAIL_HOST_USER = _get_env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = _get_env('EMAIL_HOST_PASSWORD', default='')
+
+EMAIL_TIMEOUT = 10  # seconds; smtplib will raise TimeoutError instead of hanging
 
 DEFAULT_FROM_EMAIL = _get_env('DEFAULT_FROM_EMAIL', default='no-reply@unheard.app')
 SERVER_EMAIL = _get_env('SERVER_EMAIL', default=DEFAULT_FROM_EMAIL)

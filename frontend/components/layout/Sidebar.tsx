@@ -1,21 +1,38 @@
-
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Home,
+  Search,
+  LayoutGrid,
+  Bell,
+  User,
+  FileText,
+  Bookmark,
+  Settings,
+  Plus,
+  type LucideIcon,
+} from "lucide-react";
 import Logo from "../ui/Logo";
 
-const navigation = [
-  { label: "Home", href: "/home", icon: "⌂" },
-  { label: "Explore", href: "/explore", icon: "⌕" },
-  { label: "Categories", href: "/categories", icon: "▦" },
-  { label: "Notifications", href: "/notifications", icon: "♧" },
+type NavItem = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+};
+
+const navigation: NavItem[] = [
+  { label: "Home", href: "/home", icon: Home },
+  { label: "Explore", href: "/explore", icon: Search },
+  { label: "Categories", href: "/categories", icon: LayoutGrid },
+  { label: "Notifications", href: "/notifications", icon: Bell },
 ];
 
-const personal = [
-  { label: "My Profile", href: "/profile", icon: "○" },
-  { label: "My Posts", href: "/my-posts", icon: "▤" },
-  { label: "Saved Posts", href: "/saved", icon: "☆" },
+const personal: NavItem[] = [
+  { label: "My Profile", href: "/profile", icon: User },
+  { label: "My Posts", href: "/my-posts", icon: FileText },
+  { label: "Saved Posts", href: "/saved", icon: Bookmark },
 ];
 
 export default function Sidebar() {
@@ -23,15 +40,13 @@ export default function Sidebar() {
 
   const isActive = (href: string) => {
     if (href === "/home") return pathname === "/home";
-
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
-  const renderLinks = (
-    items: typeof navigation | typeof personal
-  ) =>
+  const renderLinks = (items: NavItem[]) =>
     items.map((item) => {
       const active = isActive(item.href);
+      const Icon = item.icon; // must be capitalized to render as a component
 
       return (
         <Link
@@ -44,7 +59,7 @@ export default function Sidebar() {
               : "text-gray-400 hover:bg-white/4 hover:text-white"
           }`}
         >
-          <span className="w-5 text-center text-xl">{item.icon}</span>
+          <Icon className="h-5 w-5" />
           {item.label}
         </Link>
       );
@@ -58,7 +73,7 @@ export default function Sidebar() {
         href="/create-post"
         className="mt-10 flex items-center justify-center gap-2 rounded-xl bg-purple-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-purple-500"
       >
-        <span className="text-xl">+</span>
+        <Plus className="h-5 w-5" />
         Create a post
       </Link>
 
@@ -66,7 +81,6 @@ export default function Sidebar() {
         <p className="mb-3 px-4 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
           Menu
         </p>
-
         {renderLinks(navigation)}
       </nav>
 
@@ -74,7 +88,6 @@ export default function Sidebar() {
         <p className="mb-3 px-4 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
           Personal
         </p>
-
         {renderLinks(personal)}
       </nav>
 
@@ -87,7 +100,7 @@ export default function Sidebar() {
               : "text-gray-400 hover:bg-white/4 hover:text-white"
           }`}
         >
-          <span className="text-xl">⚙</span>
+          <Settings className="h-5 w-5" />
           Settings
         </Link>
 
@@ -95,14 +108,9 @@ export default function Sidebar() {
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 font-semibold text-white">
             U
           </div>
-
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">
-              Your Account
-            </p>
-            <p className="text-xs text-gray-500">
-              Personal profile
-            </p>
+            <p className="truncate text-sm font-semibold text-white">Your Account</p>
+            <p className="text-xs text-gray-500">Personal profile</p>
           </div>
         </div>
       </div>

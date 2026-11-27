@@ -1,8 +1,8 @@
-
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Settings, Bell } from "lucide-react";
 import Logo from "../ui/Logo";
 
 const pageTitles: Record<string, string> = {
@@ -51,13 +51,13 @@ export default function Header() {
           href="/settings"
           aria-label="Settings"
           title="Settings"
-          className={`flex h-10 w-10 items-center justify-center rounded-xl text-lg transition ${
+          className={`flex h-10 w-10 items-center justify-center rounded-xl transition ${
             pathname.startsWith("/settings")
               ? "bg-purple-500/10 text-purple-400"
               : "text-gray-400 hover:bg-white/[0.05] hover:text-white"
           }`}
         >
-          ⚙
+          <Settings className="h-5 w-5" />
         </Link>
 
         {/* Notifications */}
@@ -65,9 +65,13 @@ export default function Header() {
           href="/notifications"
           aria-label="Notifications"
           title="Notifications"
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-lg text-gray-400 transition hover:bg-white/[0.05] hover:text-white"
+          className={`flex h-10 w-10 items-center justify-center rounded-xl transition ${
+            pathname.startsWith("/notifications")
+              ? "bg-purple-500/10 text-purple-400"
+              : "text-gray-400 hover:bg-white/[0.05] hover:text-white"
+          }`}
         >
-          ♧
+          <Bell className="h-5 w-5" />
         </Link>
 
         {/* Profile */}
