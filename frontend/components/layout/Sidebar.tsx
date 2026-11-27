@@ -56,7 +56,7 @@ export default function Sidebar() {
           className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
             active
               ? "bg-purple-500/10 text-purple-400"
-              : "text-gray-400 hover:bg-white/[0.04] hover:text-white"
+              : "text-gray-400 hover:bg-white/4 hover:text-white"
           }`}
         >
           <Icon className="h-5 w-5" />
@@ -97,7 +97,7 @@ export default function Sidebar() {
           className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
             isActive("/settings")
               ? "bg-purple-500/10 text-purple-400"
-              : "text-gray-400 hover:bg-white/[0.04] hover:text-white"
+              : "text-gray-400 hover:bg-white/4 hover:text-white"
           }`}
         >
           <Settings className="h-5 w-5" />

@@ -22,7 +22,6 @@ const discussions = [
     title: "Why is communication so difficult in relationships?",
     description:
       "Let's talk about understanding each other, expressing feelings and building healthier relationships.",
-    posts: "2.4k",
     trending: true,
   },
   {
@@ -31,7 +30,6 @@ const discussions = [
     title: "It's okay to admit that you're not okay.",
     description:
       "A space for honest conversations about emotional wellbeing and the things we rarely talk about.",
-    posts: "1.8k",
     trending: true,
   },
   {
@@ -40,7 +38,6 @@ const discussions = [
     title: "Becoming the person you always wanted to be.",
     description:
       "Share your experiences, lessons and the little things helping you grow.",
-    posts: "956",
     trending: false,
   },
   {
@@ -49,7 +46,6 @@ const discussions = [
     title: "Figuring out your career path.",
     description:
       "Discuss career decisions, professional challenges and finding your direction.",
-    posts: "724",
     trending: false,
   },
   {
@@ -58,7 +54,6 @@ const discussions = [
     title: "The pressure to succeed academically.",
     description:
       "Talk about school, expectations, learning and balancing everything.",
-    posts: "612",
     trending: false,
   },
 ];
@@ -231,10 +226,7 @@ export default function ExplorePage() {
                   {discussion.description}
                 </p>
 
-                <div className="mt-5 flex items-center justify-between border-t border-white/[0.06] pt-4">
-                  <span className="text-xs text-gray-500">
-                    {discussion.posts} conversations
-                  </span>
+                <div className="mt-5 flex items-center justify-between border-t border-white/08 pt-4">
 
                   <Link
                     href={`/category/${discussion.category.toLowerCase().replaceAll(" ", "-")}`}
