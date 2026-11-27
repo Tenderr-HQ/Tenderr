@@ -71,7 +71,7 @@ export default function ExplorePage() {
 
       const matchesFilter =
         activeFilter === "All" ||
-        (activeFilter === "Trending" && discussion.trending) ||
+        (activeFilter === "Most Discussed" && discussion.trending) ||
         discussion.category === activeFilter;
 
       return matchesSearch && matchesFilter;
@@ -183,7 +183,7 @@ export default function ExplorePage() {
           </div>
 
           <div className="flex items-center gap-1 rounded-xl bg-[#15101e] p-1">
-            {["All", "Trending"].map((filter) => (
+            {["All", "Most Discussed"].map((filter) => (
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
@@ -213,7 +213,7 @@ export default function ExplorePage() {
 
                   {discussion.trending && (
                     <span className="text-xs font-medium text-orange-300">
-                      ↗ Trending
+                      ↗ Most Discussed
                     </span>
                   )}
                 </div>

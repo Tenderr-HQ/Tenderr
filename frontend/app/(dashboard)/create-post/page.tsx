@@ -1,39 +1,202 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { ChevronDown, Check, Info } from "lucide-react";
+import { createPost } from "@/lib/api/posts";
+import type { PostCategory, PostIntent } from "@/lib/api/types";
 
-const categories = [
-  "Relationships",
-  "Mental Wellbeing",
-  "Personal Growth",
-  "Career",
-  "Education",
-  "Family",
-  "Friendship",
-  "Lifestyle",
-  "Technology",
-  "Finance",
-  "Entertainment",
-  "Other",
+type DropdownOption = {
+  label: string;
+  value: string;
+  description?: string;
+};
+
+const categories: DropdownOption[] = [
+  { label: "Love", value: "love" },
+  { label: "Life", value: "life" },
+  { label: "Mental Health", value: "mental_health" },
+  { label: "Family", value: "family" },
 ];
+
+const intents: DropdownOption[] = [
+  {
+    label: "I just want to vent",
+    value: "vent",
+    description: "Sometimes you just need someone to listen.",
+  },
+  {
+    label: "I need advice",
+    value: "advice",
+    description: "Get different perspectives and suggestions.",
+  },
+  {
+    label: "I want to hear similar experiences",
+    value: "similar",
+    description: "Connect with people who understand.",
+  },
+  {
+    label: "I don't know, I just want to talk",
+    value: "talk",
+    description: "Start a conversation without pressure.",
+  },
+];
+
+type CustomDropdownProps = {
+  value: string;
+  options: DropdownOption[];
+  placeholder: string;
+  onChange: (value: string) => void;
+};
+
+function CustomDropdown({
+  value,
+  options,
+  placeholder,
+  onChange,
+}: CustomDropdownProps) {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const selectedOption = options.find(
+    (option) => option.value === value
+  );
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  return (
+    <div ref={dropdownRef} className="relative w-full">
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((previous) => !previous)}
+        className={`flex w-full items-center justify-between rounded-xl border bg-[#110c19] px-4 py-3.5 text-left text-sm transition-all duration-200 ${
+          open
+            ? "border-purple-500 ring-2 ring-purple-500/10"
+            : "border-[#352744] hover:border-purple-500/60"
+        }`}
+      >
+        <span className={selectedOption ? "text-white" : "text-gray-500"}>
+          {selectedOption?.label || placeholder}
+        </span>
+
+        <ChevronDown
+          size={18}
+          className={`text-gray-400 transition-transform duration-200 ${
+            open ? "rotate-180 text-purple-400" : ""
+          }`}
+        />
+      </button>
+
+      {open && (
+        <div
+          role="listbox"
+          className="absolute left-0 top-[calc(100%+8px)] z-50 max-h-64 w-full overflow-y-auto rounded-xl border border-[#3b2a50] bg-[#1a1225] p-2 shadow-2xl shadow-black/40 animate-in fade-in slide-in-from-top-2 duration-200"
+        >
+          {options.map((option) => {
+            const selected = value === option.value;
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                role="option"
+                aria-selected={selected}
+                onClick={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-3 text-left transition-colors ${
+                  selected
+                    ? "bg-purple-600/15 text-purple-300"
+                    : "text-gray-300 hover:bg-purple-500/10 hover:text-white"
+                }`}
+              >
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium">
+                    {option.label}
+                  </span>
+
+                  {option.description && (
+                    <span className="mt-1 block text-xs text-gray-500">
+                      {option.description}
+                    </span>
+                  )}
+                </span>
+
+                {selected && (
+                  <Check
+                    size={17}
+                    className="shrink-0 text-purple-400"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function CreatePostPage() {
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<PostCategory | "">("");
+  const [intent, setIntent] = useState<PostIntent>("talk");
   const [anonymous, setAnonymous] = useState(true);
   const [allowComments, setAllowComments] = useState(true);
+
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [isPublishing, setIsPublishing] = useState(false);
 
   const maxCharacters = 2000;
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const identityOptions: DropdownOption[] = [
+    {
+      label: "Anonymous",
+      value: "anonymous",
+      description: "Hide your public profile identity",
+    },
+    {
+      label: "Your profile",
+      value: "profile",
+      description: "Show your profile as the author",
+    },
+  ];
+
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
 
     setError("");
-    setSuccess(false);
+    setSuccess("");
 
     if (!content.trim()) {
       setError("Please write something before publishing.");
@@ -45,22 +208,39 @@ export default function CreatePostPage() {
       return;
     }
 
-    const postData = {
-      content: content.trim(),
-      category,
-      anonymous,
-      allowComments,
-    };
+    if (isPublishing) return;
 
-    // Frontend demonstration only.
-    // Connect this data to your Django API later.
-    console.log("Post data:", postData);
+    setIsPublishing(true);
 
-    setSuccess(true);
-    setContent("");
-    setCategory("");
-    setAnonymous(true);
-    setAllowComments(true);
+    try {
+      await createPost({
+        content: content.trim(),
+        category,
+        intent,
+        allow_comments: allowComments,
+        is_anonymous: anonymous,
+      });
+
+      setSuccess(
+        "Your post has been submitted successfully. It is awaiting moderation and will appear in the public feed once approved."
+      );
+
+      // Reset the form after successful submission.
+      setContent("");
+      setCategory("");
+      setIntent("talk");
+      setAnonymous(true);
+      setAllowComments(true);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Something went wrong while publishing your post.";
+
+      setError(message);
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   return (
@@ -74,9 +254,33 @@ export default function CreatePostPage() {
           ← Back to feed
         </Link>
 
-        <h1 className="text-2xl font-bold text-white sm:text-3xl">
-          Create a post
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-white sm:text-3xl">
+            Create a post
+          </h1>
+
+          <div className="group relative">
+            <button
+              type="button"
+              aria-label="Information about creating a post"
+              className="flex items-center justify-center rounded-full text-gray-500 transition hover:text-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+            >
+              <Info size={19} />
+            </button>
+
+            <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-3 w-64 -translate-x-1/2 rounded-xl border border-[#49335d] bg-[#1a1225] p-4 text-left text-xs leading-6 text-gray-300 opacity-0 shadow-xl shadow-black/30 transition-all duration-200 group-hover:opacity-100 group-focus-within:opacity-100 sm:left-0 sm:translate-x-0">
+              <p className="mb-1 font-semibold text-purple-300">
+                About creating posts
+              </p>
+
+              Share your thoughts, experiences, or questions on Tenderr.
+              Choose a category and tell the community what you need.
+              You can publish using your profile or choose to remain anonymous.
+
+              <span className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-l border-t border-[#49335d] bg-[#1a1225] sm:left-2 sm:translate-x-0" />
+            </div>
+          </div>
+        </div>
 
         <p className="mt-2 text-sm leading-6 text-gray-400">
           Share what's on your mind. Your voice matters.
@@ -89,8 +293,7 @@ export default function CreatePostPage() {
           role="status"
           className="rounded-xl border border-green-500/20 bg-green-500/10 p-4 text-sm text-green-400"
         >
-          Your post passed validation. This is a frontend demo; it has not
-          been published to the server.
+          {success}
         </div>
       )}
 
@@ -101,10 +304,7 @@ export default function CreatePostPage() {
         {/* Post identity */}
         <div className="w-full space-y-3">
           <div>
-            <label
-              htmlFor="post-identity"
-              className="block text-sm font-semibold text-white"
-            >
+            <label className="block text-sm font-semibold text-white">
               Post as
             </label>
 
@@ -113,17 +313,14 @@ export default function CreatePostPage() {
             </p>
           </div>
 
-          <select
-            id="post-identity"
+          <CustomDropdown
             value={anonymous ? "anonymous" : "profile"}
-            onChange={(event) =>
-              setAnonymous(event.target.value === "anonymous")
+            options={identityOptions}
+            placeholder="Choose your identity"
+            onChange={(value) =>
+              setAnonymous(value === "anonymous")
             }
-            className="block w-full min-w-0 rounded-xl border border-[#352744] bg-[#110c19] px-4 py-3.5 text-sm text-white outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10"
-          >
-            <option value="anonymous">Anonymous</option>
-            <option value="profile">Your profile</option>
-          </select>
+          />
 
           <p className="text-xs leading-5 text-gray-500">
             {anonymous
@@ -175,10 +372,7 @@ export default function CreatePostPage() {
         {/* Category */}
         <div className="space-y-3">
           <div>
-            <label
-              htmlFor="post-category"
-              className="block text-sm font-semibold text-white"
-            >
+            <label className="block text-sm font-semibold text-white">
               Choose a category
             </label>
 
@@ -187,20 +381,36 @@ export default function CreatePostPage() {
             </p>
           </div>
 
-          <select
-            id="post-category"
+          <CustomDropdown
             value={category}
-            onChange={(event) => setCategory(event.target.value)}
-            className="w-full rounded-xl border border-[#352744] bg-[#110c19] px-4 py-3.5 text-sm text-white outline-none transition focus:border-purple-500"
-          >
-            <option value="">Select a category</option>
+            options={categories}
+            placeholder="Select a category"
+            onChange={(value) =>
+              setCategory(value as PostCategory)
+            }
+          />
+        </div>
 
-            {categories.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
+        {/* Intent */}
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-semibold text-white">
+              What do you need right now?
+            </label>
+
+            <p className="mt-1 text-xs text-gray-500">
+              Let people understand how they can support you.
+            </p>
+          </div>
+
+          <CustomDropdown
+            value={intent}
+            options={intents}
+            placeholder="Choose what you need"
+            onChange={(value) =>
+              setIntent(value as PostIntent)
+            }
+          />
         </div>
 
         <div className="border-t border-[#2b2038]" />
@@ -222,7 +432,9 @@ export default function CreatePostPage() {
             role="switch"
             aria-checked={allowComments}
             aria-label="Allow comments"
-            onClick={() => setAllowComments(!allowComments)}
+            onClick={() =>
+              setAllowComments((previous) => !previous)
+            }
             className={`relative h-6 w-11 shrink-0 rounded-full transition ${
               allowComments ? "bg-purple-600" : "bg-gray-700"
             }`}
@@ -256,10 +468,11 @@ export default function CreatePostPage() {
 
           <button
             type="submit"
-            className="flex items-center justify-center gap-2 rounded-xl bg-purple-600 px-7 py-3 text-sm font-semibold text-white transition hover:bg-purple-500"
+            disabled={isPublishing}
+            className="flex items-center justify-center gap-2 rounded-xl bg-purple-600 px-7 py-3 text-sm font-semibold text-white transition hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Publish post
-            <span>→</span>
+            {isPublishing ? "Publishing..." : "Publish post"}
+            {!isPublishing && <span>→</span>}
           </button>
         </div>
       </form>
@@ -270,9 +483,9 @@ export default function CreatePostPage() {
           <span className="font-semibold text-purple-300">
             Your privacy matters.
           </span>{" "}
-          Choosing Anonymous hides your public identity on the post. The
-          platform may still process account information for security and
-          moderation purposes.
+          Choosing Anonymous hides your public identity on the post.
+          The platform may still process account information for
+          security and moderation purposes.
         </p>
       </div>
     </div>

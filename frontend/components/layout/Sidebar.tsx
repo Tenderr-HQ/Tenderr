@@ -27,8 +27,6 @@ type NavItem = {
 const navigation: NavItem[] = [
   { label: "Home", href: "/home", icon: Home },
   { label: "Explore", href: "/explore", icon: Search },
-  { label: "Categories", href: "/categories", icon: LayoutGrid },
-  { label: "Notifications", href: "/notifications", icon: Bell },
   { label: "Communities", href: "/communities", icon: Users },
 ];
 
@@ -98,18 +96,6 @@ export default function Sidebar() {
       </nav>
 
       <div className="mt-auto border-t border-white/[0.07] pt-5">
-        <Link
-          href="/settings"
-          className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
-            isActive("/settings")
-              ? "bg-purple-500/10 text-purple-400"
-              : "text-gray-400 hover:bg-white/5 hover:text-white"
-          }`}
-        >
-          <Settings className="h-5 w-5" />
-          Settings
-        </Link>
-
         <div className="mt-5 flex items-center gap-3 px-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 font-semibold text-white">
             U
