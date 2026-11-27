@@ -18,9 +18,7 @@ import type {
   UpdateProfilePayload,
 } from './types';
 
-// ────────────────────────────────────────────────────────────
 // Self
-// ────────────────────────────────────────────────────────────
 
 /**
  * GET /api/accounts/me/
@@ -132,9 +130,7 @@ export async function getSessions(): Promise<Paginated<SessionItem>> {
   return data;
 }
 
-// ────────────────────────────────────────────────────────────
 // Stand With (private one-way bookmark)
-// ────────────────────────────────────────────────────────────
 
 /**
  * GET /api/accounts/me/stand-with/
@@ -163,9 +159,7 @@ export async function toggleStandWith(username: string): Promise<{ standing_with
   return data;
 }
 
-// ────────────────────────────────────────────────────────────
 // Companion (mutual connection)
-// ────────────────────────────────────────────────────────────
 
 /**
  * GET /api/accounts/me/companions/
@@ -232,9 +226,7 @@ export async function cancelCompanionRequest(companionId: number): Promise<void>
   await apiClient.post(`accounts/companions/${companionId}/cancel/`);
 }
 
-// ────────────────────────────────────────────────────────────
 // Block
-// ────────────────────────────────────────────────────────────
 
 /**
  * POST /api/accounts/<username>/block/
@@ -262,9 +254,7 @@ export async function getBlockedUsers(): Promise<Paginated<BlockItem>> {
   return data;
 }
 
-// ────────────────────────────────────────────────────────────
 // Public profile + search
-// ────────────────────────────────────────────────────────────
 
 /**
  * GET /api/accounts/profile/<username>/

@@ -12,9 +12,7 @@
  *   XxxPayload   — a request body sent to the API
  */
 
-// ────────────────────────────────────────────────────────────
 // Shared
-// ────────────────────────────────────────────────────────────
 
 /** Standard DRF pagination envelope. Every list endpoint uses this. */
 export interface Paginated<T> {
@@ -76,9 +74,7 @@ export interface PublicUserDto {
   has_blocked_me?: boolean;
 }
 
-// ────────────────────────────────────────────────────────────
 // Authentication (authentications/urls.py)
-// ────────────────────────────────────────────────────────────
 
 
 
@@ -118,9 +114,7 @@ export interface TokenPair {
   email_verification_required?: boolean;
 }
 
-// ────────────────────────────────────────────────────────────
 // Accounts (accounts/urls.py)
-// ────────────────────────────────────────────────────────────
 
 export interface MeDto {
   id: string;
@@ -192,9 +186,7 @@ export interface DeactivatePayload {
   reason?: string;
 }
 
-// ────────────────────────────────────────────────────────────
 // Posts (posts/urls.py)
-// ────────────────────────────────────────────────────────────
 
 export type PostCategory = 'love' | 'life' | 'mental_health' | 'family';
 export type PostIntent = 'vent' | 'advice' | 'similar' | 'talk';
@@ -218,6 +210,7 @@ export interface PostDto {
   comments_count: number | null; // null when comments are disabled
   letters_count: number;         // 0 for non-authors
   is_mine: boolean;
+  is_saved: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -264,9 +257,7 @@ export interface SendLetterPayload {
   is_sender_anonymous: boolean;
 }
 
-// ────────────────────────────────────────────────────────────
 // Communities (communities/urls.py)
-// ────────────────────────────────────────────────────────────
 
 export interface CommunityDto {
   id: string;
@@ -355,9 +346,7 @@ export interface DiscussionMessageDto {
   created_at: string;
 }
 
-// ────────────────────────────────────────────────────────────
 // Moderation (moderation/urls.py)
-// ────────────────────────────────────────────────────────────
 
 export type ContentType = 'post' | 'comment' | 'message' | 'user';
 export type ReportReason =
@@ -403,9 +392,7 @@ export interface ModerationFlagDto {
   created_at: string;
 }
 
-// ────────────────────────────────────────────────────────────
 // Settings (settings/urls.py)
-// ────────────────────────────────────────────────────────────
 
 export type Theme = 'light' | 'dark' | 'system';
 export type FontSize = 'small' | 'medium' | 'large';
@@ -471,9 +458,7 @@ export interface HelpSupportDto {
   }>;
 }
 
-// ────────────────────────────────────────────────────────────
 // Notifications (notifications/urls.py)
-// ────────────────────────────────────────────────────────────
 
 export type NotificationType =
   | 'comment' | 'reaction' | 'letter'
